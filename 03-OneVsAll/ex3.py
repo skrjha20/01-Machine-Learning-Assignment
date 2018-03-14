@@ -1,7 +1,6 @@
 from __future__ import division
 import numpy as np
 from scipy import optimize, io
-from sklearn.preprocessing import PolynomialFeatures
 
 def sigmoid(z):
      g = 1/(1+np.exp(-z))
@@ -10,11 +9,10 @@ def sigmoid(z):
 def cost_function(theta, X, y, lamda):
     m, n = X.shape
     X = np.hstack((np.ones((m, 1)), X))
-    
-    J = (-1/m)*(y.T.dot(np.log(sigmoid(X.dot(theta.T)))) + (1 - y).T.dot(np.log(1 - sigmoid(X.dot(theta.T))))) + \
-        (lamda/(2*m))*np.sum(np.power(np.eye(len(theta)).dot(theta),2))
     mask = np.eye(len(theta))
     mask[0, 0] = 0
+    J = (-1/m)*(y.T.dot(np.log(sigmoid(X.dot(theta.T)))) + (1 - y).T.dot(np.log(1 - sigmoid(X.dot(theta.T))))) + \
+        (lamda/(2*m))*np.sum(np.power(mask.dot(theta),2))
     grad = (1/m)*(sigmoid(X.dot(theta.T)) - y).T.dot(X) - (lamda/m)*mask.dot(theta)
     return J, grad
         
