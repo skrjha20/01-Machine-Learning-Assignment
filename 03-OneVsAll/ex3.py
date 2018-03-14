@@ -28,6 +28,13 @@ def one_vs_all(theta, X, y, num_labels, lamda):
         all_theta[i, :] = result.x
     return all_theta
 
+def predict_one_vs_all(all_theta, X):
+    m, n = X.shape
+    X = np.hstack((np.ones((m, 1)), X))
+    p = np.argmax(X.dot(all_theta.T), axis=1)
+    p[p == 0] = 10
+    return p
+
 if __name__ == "__main__":
     
     data = io.loadmat('ex3data1.mat')
@@ -37,8 +44,11 @@ if __name__ == "__main__":
     m, n = X.shape
     num_labels = len(np.unique(y))    
     theta = np.zeros(n + 1)    
-    lamda = 0
+    lamda = 0.1
     
     J, grad = cost_function(theta, X, y, lamda)
     print (J)
     all_theta = one_vs_all(theta, X, y, num_labels, lamda)
+
+    pred = predict_one_vs_all(all_theta, X)
+    print ('Training Set Accuracy:', np.mean(pred == y) * 100)
