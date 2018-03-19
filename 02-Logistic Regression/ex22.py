@@ -16,13 +16,13 @@ def feature_normalize(X):
 def cost_function(theta, X, y, lamda):
     
     m, n = X.shape
-    J = (-1/m)*(y.T.dot(np.log(sigmoid(X.dot(theta.T)))) + (1 - y).T.dot(np.log(1 - sigmoid(X.dot(theta.T))))) + \
-        (lamda/(2*m))*np.sum(np.power(np.eye(len(theta)).dot(theta),2))
     mask = np.eye(len(theta))
     mask[0, 0] = 0
+    J = (-1/m)*(y.T.dot(np.log(sigmoid(X.dot(theta.T)))) + (1 - y).T.dot(np.log(1 - sigmoid(X.dot(theta.T))))) + \
+        (lamda/(2*m))*np.sum(np.power((mask.dot(theta)), 2))
     grad = (1/m)*(sigmoid(X.dot(theta.T)) - y).T.dot(X) - (lamda/m)*mask.dot(theta)
     return J, grad
-        
+
 if __name__ == "__main__":
     
     data = np.loadtxt(open("ex2data2.txt", "r"), delimiter=",")
