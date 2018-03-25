@@ -14,33 +14,39 @@ def sigmoidGradient(z):
 def cost_function(theta, X, y, input_layer_size, hidden_layer_size, lamda):
     num_labels = len(np.unique(y))
     y = pd.get_dummies(y.ravel()).as_matrix()
-    theta1 = np.reshape(theta[0:(hidden_layer_size*(input_layer_size + 1)),], (hidden_layer_size, input_layer_size + 1))
-    theta2 = np.reshape(theta[(hidden_layer_size * (input_layer_size + 1)):, ], (num_labels, hidden_layer_size + 1))
+
+    theta1 = np.reshape(theta[0:(hidden_layer_size*(input_layer_size + 1))], (hidden_layer_size, input_layer_size + 1))
+    theta2 = np.reshape(theta[(hidden_layer_size * (input_layer_size + 1)):], (num_labels, hidden_layer_size + 1))
 
     m, n = X.shape
     X = np.hstack((np.ones((m, 1)), X))
-
     a1 = X
-    z2 = theta1.dot(a1.T)
-    a2 = sigmoid(z2.T)
+    z2 = X.dot(theta1.T)
+    a2 = sigmoid(z2)
     a2 = np.hstack((np.ones((m, 1)), a2))
-    z3 = theta2.dot(a2.T)
-    hx = sigmoid(z3)
+    z3 = a2.dot(theta2.T)
+    a3 = sigmoid(z3)
+    hx = a3
 
-    J = (-1/m)*np.sum((np.log(hx.T)*y + np.log(1-hx).T*(1-y))) + \
-        (lamda/(2*m))*(np.sum(np.square(theta1[:, 1:])) + np.sum(np.square(theta2[:, 1:])))
+    J = 0.0
+    for i in range(m):
+        J += (-1/m)*(np.log(hx[i, ]).dot(y[i, ].T) + np.log(1 - hx[i, ]).dot(1 - y[i, ].T)
+    J = J + (lamda/(2*m))*(np.sum(np.square(theta1[:, 1:])) + np.sum(np.square(theta2[:, 1:])))
 
-    d3 = hx.T - y
-    d2 = theta2[:,1:].T.dot(d3.T)*sigmoidGradient(z2)
+    d3 = hx - y
+    D2 = d3.T.dot(a2)
 
-    delta1 = d2.dot(a1)
-    delta2 = d3.T.dot(a2)
+    z2 = np.hstack((np.ones((m, 1)), z2))
+    d2 = d3.dot(theta2) * sigmoid_gradient(z2)
+    d2 = d2[:, 1:]
+    D1 = d2.T.dot(X)
 
-    theta1_ = np.c_[np.ones((theta1.shape[0], 1)), theta1[:, 1:]]
-    theta2_ = np.c_[np.ones((theta2.shape[0], 1)), theta2[:, 1:]]
+    theta1_grad = D1/m
+    theta1_grad[:, 1:] = theta1_grad[:, 1:] + (lamda/m)*theta1[:, 1:]
 
-    theta1_grad = delta1/m + (theta1_*lamda)/m
-    theta2_grad = delta2/m + (theta2_*lamda)/m
+    theta2_grad = D2/m
+    theta2_grad[:, 1:] = theta2_grad[:, 1:] + (lamda/m)*theta2[:, 1:]
+
     grad = np.hstack((theta1_grad.ravel(), theta2_grad.ravel()))
     return J, grad
 
@@ -48,28 +54,29 @@ def predict(theta1, theta2, X):
     m, n = X.shape
     X = np.hstack((np.ones((m, 1)), X))
     a1 = X
-    z2 = theta1.dot(a1.T)
-    a2 = sigmoid(z2.T)
+    z2 = a1.dot(theta1.T)
+    a2 = sigmoid(z2)
     a2 = np.hstack((np.ones((m, 1)), a2))
-    z3 = theta2.dot(a2.T)
+    z3 = a2.dot(theta2.T)
     hx = sigmoid(z3.T)
     p = np.argmax(hx, axis=1) + 1
     return p
 
 if __name__ == "__main__":
-    
+
     data = io.loadmat('ex4data1.mat')
     X = data['X']
-    y = data['y']
+    y = data['y'].ravel()
     num_labels = len(np.unique(y))
 
     mat_param = io.loadmat('ex4weights.mat')
     theta1 = mat_param['Theta1']
     theta2 = mat_param['Theta2']
+    theta = np.hstack((theta1.flatten(), theta2.flatten()))
 
     input_layer_size = np.shape(theta1)[1] - 1
     hidden_layer_size = np.shape(theta2)[1] - 1
-    theta = np.hstack((theta1.flatten(), theta2.flatten()))
+
     lamda = 0
     J, grad = cost_function(theta, X, y, input_layer_size, hidden_layer_size, lamda)
 
