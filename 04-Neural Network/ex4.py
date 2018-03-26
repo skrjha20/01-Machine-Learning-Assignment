@@ -58,7 +58,7 @@ def predict(theta1, theta2, X):
     a2 = sigmoid(z2)
     a2 = np.hstack((np.ones((m, 1)), a2))
     z3 = a2.dot(theta2.T)
-    hx = sigmoid(z3.T)
+    hx = sigmoid(z3)
     p = np.argmax(hx, axis=1) + 1
     return p
 
@@ -77,13 +77,13 @@ if __name__ == "__main__":
     input_layer_size = np.shape(theta1)[1] - 1
     hidden_layer_size = np.shape(theta2)[1] - 1
 
-    lamda = 0
+    lamda = 1
     J, grad = cost_function(theta, X, y, input_layer_size, hidden_layer_size, lamda)
 
     initial_epsilon = 0.12
-    initial_theta1 = np.random.rand(np.shape(theta1)[0], np.shape(theta1)[1])* 2 * initial_epsilon - initial_epsilon
-    initial_theta2 = np.random.rand(np.shape(theta2)[0], np.shape(theta2)[1])* 2 * initial_epsilon - initial_epsilon
-    initial_theta = np.hstack((initial_theta1.flatten(), initial_theta2.flatten()))
+    initial_theta1 = np.random.rand(hidden_layer_size, input_layer_size + 1)* 2 * initial_epsilon - initial_epsilon
+    initial_theta2 = np.random.rand(num_labels, hidden_layer_size + 1)* 2 * initial_epsilon - initial_epsilon
+    initial_theta = np.hstack((initial_theta1.ravel(), initial_theta2.ravel()))
     result = optimize.minimize(fun=cost_function, x0=initial_theta,
                                args=(X, y, input_layer_size, hidden_layer_size, lamda),
                                method='TNC', jac=True, options={'maxiter': 150})
