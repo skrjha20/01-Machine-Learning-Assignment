@@ -30,14 +30,14 @@ def cost_function(theta, X, y, input_layer_size, hidden_layer_size, lamda):
 
     J = 0.0
     for i in range(m):
-        J += (-1/m)*(np.log(hx[i, ]).dot(y[i, ].T) + np.log(1 - hx[i, ]).dot(1 - y[i, ].T)
+        J += (-1/m)*(np.log(hx[i, ]).dot(y[i, ].T) + np.log(1 - hx[i, ]).dot(1 - y[i, ].T))
     J = J + (lamda/(2*m))*(np.sum(np.square(theta1[:, 1:])) + np.sum(np.square(theta2[:, 1:])))
 
     d3 = hx - y
     D2 = d3.T.dot(a2)
 
     z2 = np.hstack((np.ones((m, 1)), z2))
-    d2 = d3.dot(theta2) * sigmoid_gradient(z2)
+    d2 = d3.dot(theta2)*sigmoidGradient(z2)
     d2 = d2[:, 1:]
     D1 = d2.T.dot(X)
 
